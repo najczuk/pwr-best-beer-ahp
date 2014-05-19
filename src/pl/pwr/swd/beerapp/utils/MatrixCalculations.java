@@ -25,73 +25,65 @@ public class MatrixCalculations {
         Matrix normalizedMatrix = new Matrix(inputMatrix.getColumnDimension(), inputMatrix.getRowDimension());
 
         int columnsNumber = inputMatrix.getColumnDimension();
-        for(int column= 0; column< columnsNumber; column++){
-            for(int row= 0; row < columnsNumber; row++){
-                normalizedMatrix.set(row, column,  (inputMatrix.get(row, column)/columnsTotal[column]));
+        for(int column = 0; column< columnsNumber; column++){
+            for(int row = 0; row < columnsNumber; row++){
+                normalizedMatrix.set(row, column, inputMatrix.get(row, column)/columnsTotal[column]);
             }
         }
         return normalizedMatrix;
     }
 
-    public static double[] AverageRows (Matrix m2){
+    public static double[] RowsAvg (Matrix normalizedMatrix){
 
-        int rowsNumber = m2.getRowDimension();
-        double[] rowAvg = new double[rowsNumber];
+        int rowsNumber = normalizedMatrix.getRowDimension();
+        double[] averageRows = new double[rowsNumber];
 
-        for(int row= 0; row < m2.getRowDimension(); row++)
-        {
-            rowAvg[row] = 0;
-            rowAvg[row] += JamaUtils.rowsum(m2, row)/m2.getRowDimension();
+        for(int row = 0; row < rowsNumber; row++){
+            averageRows[row] = 0;
+            averageRows[row] += JamaUtils.rowsum(normalizedMatrix, row)/rowsNumber;
         }
-
-        return rowAvg;
+        return averageRows;
     }
 
-    public static boolean CheckCoherence(double[] columnsTotal, double[] t2){
+    public static boolean CheckCoherence(double[] columnsTotal, double[] averageRows){
 
-
-        double CI, CR, lambdaMax = 0;
-        int arrayLength = columnsTotal.length;
+        double consistencyIndex, consistencyRatio, lambdaMax = 0;
+        boolean InputMatrixCoherence = false;
+        int inputMatrixSize = columnsTotal.length;
         double[]randomIndex = {0,0,0.58,0.90,1.12,1.24,1.32,1.41,1.45,1.49, 1.51, 1.48, 1.56, 1.57, 1.59};
 
-        for(int length = 0; length < arrayLength;length++){
-
-            lambdaMax = lambdaMax + columnsTotal[length] * t2[length];
+        for(int length = 0; length < inputMatrixSize; length++){
+            lambdaMax += columnsTotal[length] * averageRows[length];
         }
 
-        CI= (lambdaMax-arrayLength)/(arrayLength-1);
-        CR = CI/randomIndex[arrayLength-1];
+        consistencyIndex= (lambdaMax-inputMatrixSize)/(inputMatrixSize-1);
+        consistencyRatio = consistencyIndex/randomIndex[inputMatrixSize-1];
 
-        if (CR <= 0.1){
-            return true;
+        if (consistencyRatio <= 0.1){
+            return InputMatrixCoherence = true;
         }
         else
-
-          return false;
+          return InputMatrixCoherence = false;
     }
 
-public static Matrix Rank (double[] AvgDecisionVector, double[]...AvgCriteriaVectors){
+public static Matrix Rank (double[] avgCriteriaVector, double[]...decisionComparisonsVectors){
 
 
-   int matrixRows = AvgCriteriaVectors.length;
-   int matrixColumns = AvgCriteriaVectors[0].length;
+   int matrixRows = decisionComparisonsVectors.length;
+   int matrixColumns = decisionComparisonsVectors[0].length;
 
-    Matrix sample = new Matrix(matrixRows,matrixColumns);
+    Matrix auxiliaryMatrix = new Matrix(matrixRows,matrixColumns);
 
-    Matrix sample2 = new Matrix(AvgDecisionVector, 1);
+    Matrix avgDecisionVector = new Matrix(avgCriteriaVector, 1);
 
-    for(int i = 0; i<matrixRows;i++){
-        for(int j=0; j<matrixColumns;j++){
+    for(int row = 0; row<matrixRows; row++){
+        for(int column = 0; column < matrixColumns; column++){
 
-            sample.set(i,j,AvgCriteriaVectors[i][j]);
+            auxiliaryMatrix.set(row,column,decisionComparisonsVectors[row][column]);
         }
     }
-
-    Matrix sample3 = sample2.times(sample);
-
-    
-
-    return sample3;
+    Matrix rankMatrix = avgDecisionVector.times(auxiliaryMatrix);
+    return rankMatrix;
 }
 
 }
