@@ -21,6 +21,11 @@ public class ComparisonMatrix extends Matrix {
         this.matrixName = matrixName;
     }
 
+    public ComparisonMatrix(double[][] doubles,String matrixName) {
+        super(doubles);
+        this.matrixName = matrixName;
+    }
+
     public ComparisonMatrix(double[][] doubles) {
         super(doubles);
     }
