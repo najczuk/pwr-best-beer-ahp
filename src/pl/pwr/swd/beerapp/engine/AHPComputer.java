@@ -6,4 +6,7 @@ package pl.pwr.swd.beerapp.engine;
  * Time: 12:47 PM
  */
 public class AHPComputer {
+    public void computeRank(){
+
+    }
 }

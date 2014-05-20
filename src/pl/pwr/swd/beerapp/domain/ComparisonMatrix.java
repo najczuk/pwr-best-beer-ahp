@@ -11,14 +11,25 @@ import java.util.ArrayList;
  */
 public class ComparisonMatrix extends Matrix {
     ArrayList<Element> elements;
+    String matrixName;
 
-    public ComparisonMatrix(ArrayList<Element> elements){
+
+
+    public ComparisonMatrix(ArrayList<Element> elements,String matrixName){
         super(elements.size(),elements.size());
         this.elements = elements;
+        this.matrixName = matrixName;
     }
 
     public ComparisonMatrix(double[][] doubles) {
         super(doubles);
+    }
+    public String getMatrixName() {
+        return matrixName;
+    }
+
+    public void setMatrixName(String matrixName) {
+        this.matrixName = matrixName;
     }
 
     public ArrayList<Element> getElements() {
