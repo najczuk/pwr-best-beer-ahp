@@ -1,3 +1,4 @@
-.idea
+console-bba/.idea
+console-bba/out
+android-bba/.idea
 *.iml
-out/

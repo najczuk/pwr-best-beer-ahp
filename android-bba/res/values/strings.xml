@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">best-beer-ahp</string>
+    <!--beer names-->
+    <string name="beer1">Perła</string>
+    <string name="beer2">Tyskie</string>
+    <string name="beer3">Żywiec</string>
+    <string name="beer4">Okocim</string>
+    <string name="beer5">Namysłów</string>
+    <string name="beer6">Ciechan</string>
+    <string name="nextButtonText">Dalej</string>
+    <string name="chooseYourBeer">Wybierz piwa, o ktrórych myślisz</string>
+</resources>

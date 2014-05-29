@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@android:color/white">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chooseYourBeer"
+            android:id="@+id/sloganText"
+            android:layout_gravity="center"
+            android:autoText="false"
+            android:textColor="@android:color/primary_text_light"/>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/beerRadioButtonsContainer"
+            android:layout_gravity="center">
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer1"
+        android:id="@+id/radioButtonBeer1"
+        android:textColor="@android:color/primary_text_light"/>
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer2"
+        android:id="@+id/radioButtonBeer2"
+        android:textColor="@android:color/primary_text_light"/>
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer3"
+        android:id="@+id/radioButtonBeer3"
+        android:textColor="@android:color/primary_text_light"/>
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer4"
+        android:id="@+id/radioButtonBeer4"
+        android:textColor="@android:color/primary_text_light"/>
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer5"
+        android:id="@+id/radioButtonBeer5"
+        android:textColor="@android:color/primary_text_light"/>
+
+        <CheckBox
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/beer6"
+        android:id="@+id/radioButtonBeer6"
+        android:textColor="@android:color/primary_text_light"/>
+
+    </LinearLayout>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nextButtonText"
+            android:id="@+id/nextButton"
+            android:onClick="submitBeers"
+            android:layout_gravity="center"
+            />
+
+</LinearLayout>
+
