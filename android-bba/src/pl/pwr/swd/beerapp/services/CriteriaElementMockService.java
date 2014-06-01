@@ -3,19 +3,21 @@ package pl.pwr.swd.beerapp.services;
 import pl.pwr.swd.beerapp.domain.Element;
 import pl.pwr.swd.beerapp.services.interfaces.ICriteriaService;
 
+import java.util.ArrayList;
+
 /**
  * User: Adrian
  * Date: 5/18/14
  * Time: 12:14 PM
  */
-public class CriteriaElementMockService implements ICriteriaService {
-    public Element[] getCriteria() {
-        Element[] elementsArray = new Element[4];
-        elementsArray[0] = new Element("ESTEROWOŚĆ");
-        elementsArray[1] = new Element("CHMIELOWOŚĆ");
-        elementsArray[2] = new Element("SŁODYCZ");
-        elementsArray[3] = new Element("DOJRZAŁOŚĆ");
+public class CriteriaElementMockService  {
+    public static ArrayList<Element> getCriteria() {
+        ArrayList<Element> elementsArray = new ArrayList<Element>;
+        elementsArray.add( new Element("ESTEROWOŚĆ"));
+        elementsArray.add(  new Element("CHMIELOWOŚĆ");
+        elementsArray.add( new Element("SŁODYCZ"));
+        elementsArray.add(  new Element("DOJRZAŁOŚĆ"));
 
-        return elementsArray;
+        return new ArrayList<Element>(elementsArray);
     }
 }

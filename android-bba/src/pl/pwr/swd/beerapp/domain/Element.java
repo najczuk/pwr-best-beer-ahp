@@ -5,7 +5,7 @@ package pl.pwr.swd.beerapp.domain;
  * Date: 5/18/14
  * Time: 11:26 AM
  */
-public class  Element{
+public class  Element {
     public String name;
 
     public Element(String name) {
