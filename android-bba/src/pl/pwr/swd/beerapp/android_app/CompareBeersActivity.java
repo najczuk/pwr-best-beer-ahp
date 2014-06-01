@@ -1,6 +1,7 @@
 package pl.pwr.swd.beerapp.android_app;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -8,10 +9,12 @@ import android.widget.GridLayout;
 import android.widget.RatingBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import pl.pwr.swd.beerapp.domain.ComparisonMatrix;
 import pl.pwr.swd.beerapp.domain.Element;
 import pl.pwr.swd.beerapp.services.CriteriaElementMockService;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * User: Adrian
@@ -32,8 +35,9 @@ public class CompareBeersActivity extends Activity {
         beers = getElementsFromStringArray(beerNames);
         criteria = CriteriaElementMockService.getCriteria();
 
-        for (Element currentCriteria : criteria) {
-
+        for (Element element : criteria) {
+            appendComparisonHeader(element.getName());
+            createComparisonViews();
         }
 
     }
@@ -43,9 +47,6 @@ public class CompareBeersActivity extends Activity {
 
         TextView firstElement = new TextView(this);
         firstElement.setText(firstElementName);
-//        GridLayout.LayoutParams firstLP=(GridLayout.LayoutParams)firstElement.getLayoutParams();
-//        firstLP.columnSpec = GridLayout.spec(0,2);
-//        firstElement.setLayoutParams(firstLP);
 
         TextView secondElement = new TextView(this);
         secondElement.setText(secondElementName);
@@ -63,16 +64,12 @@ public class CompareBeersActivity extends Activity {
         gridLayout.addView(secondElement);
         gridLayout.addView(ratingBar);
 
+        setSwitchParams(aSwitch);
+        setRatingParams(ratingBar);
 
-        GridLayout.LayoutParams switchParams = new GridLayout.LayoutParams();
-        switchParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
-        switchParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
-        switchParams.rightMargin = 5;
-        switchParams.topMargin = 5;
-        switchParams.setGravity(Gravity.CENTER);
-        switchParams.columnSpec = GridLayout.spec(1,2);
-        aSwitch.setLayoutParams(switchParams);
+    }
 
+    private void setRatingParams(RatingBar ratingBar) {
         GridLayout.LayoutParams ratingParams = new GridLayout.LayoutParams();
         ratingParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
         ratingParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
@@ -81,19 +78,32 @@ public class CompareBeersActivity extends Activity {
         ratingParams.setGravity(Gravity.CENTER);
         ratingParams.columnSpec = GridLayout.spec(0,4);
         ratingBar.setLayoutParams(ratingParams);
-
-//        whichBestRow.addView(firstElement, new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.2f));
-//        whichBestRow.addView(aSwitch, new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-//        whichBestRow.addView(secondElement, new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.2f));
-//        whichBestRow.addView(ratingBar, new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 0.5f));
-//
-//        tableLayout.addView(whichBestRow);
-
-
     }
+
+    private void setSwitchParams(Switch aSwitch) {
+        GridLayout.LayoutParams switchParams = new GridLayout.LayoutParams();
+        switchParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
+        switchParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
+        switchParams.rightMargin = 5;
+        switchParams.topMargin = 5;
+        switchParams.setGravity(Gravity.CENTER);
+        switchParams.columnSpec = GridLayout.spec(1,2);
+        aSwitch.setLayoutParams(switchParams);
+    }
+
     private void appendComparisonHeader(String comparisonName){
         TextView headerElement = new TextView(this);
         headerElement.setText(comparisonName);
+        setHeaderParams(headerElement);
+
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.beerComparisonGridLayout);
+        gridLayout.addView(headerElement);
+
+
+    }
+
+    private void setHeaderParams(TextView headerElement) {
+        headerElement.setTextColor(Color.parseColor("#000000"));
         GridLayout.LayoutParams ratingParams = new GridLayout.LayoutParams();
         ratingParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
         ratingParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
@@ -102,11 +112,6 @@ public class CompareBeersActivity extends Activity {
         ratingParams.setGravity(Gravity.CENTER);
         ratingParams.columnSpec = GridLayout.spec(0,4);
         headerElement.setLayoutParams(ratingParams);
-
-        GridLayout gridLayout = (GridLayout) findViewById(R.id.beerComparisonGridLayout);
-        gridLayout.addView(headerElement);
-
-
     }
 
 
@@ -118,6 +123,70 @@ public class CompareBeersActivity extends Activity {
             Log.d("CHOOSED_BEER", beerName);
         }
         return beers;
+    }
+
+    private void createComparisonViews(){
+        for (int firstElement = 0; firstElement < beers.size(); firstElement++) {
+            for (int secondElement = firstElement+1; secondElement < beers.size(); secondElement++) {
+                appendComparisonView(beers.get(firstElement).getName(),beers.get(secondElement).getName());
+            }
+        }
+
+
+    }
+
+    private ComparisonMatrix getComparisonMatrix(ArrayList<Element> elements, String matrixName) {
+        ComparisonMatrix comparisonMatrix;
+        Scanner scanner = new Scanner(System.in);
+        int preferredElement = 0;
+        double preferrenceLvl;
+        double[] preferrenceLvlArray = new double[(elements.size() * elements.size() - elements.size()) / 2];
+        int preferrenceArrayCounter = 0;
+        String prompt = "";
+
+        for (int i = 0; i < elements.size(); i++) {
+            for (int j = i + 1; j < elements.size(); j++) {
+                prompt = "Co bardziej preferujesz " + elements.get(i) + "( 0 ) czy " + elements.get(j) + "( 1 )?";
+                System.out.println("---" + matrixName.toUpperCase() + "---");
+                System.out.println(prompt);
+                preferredElement = Integer.parseInt(scanner.next())==0?i:j;
+                System.out.println("Jak bardzo?");
+                System.out.println("Tak samo(1)/Nieznacznie(3)/Silnie(5)/Bardzo silnie(7)/Wyjątkowo(9)");
+                preferrenceLvl = scanner.nextInt();
+                preferrenceLvl = preferredElement == i ? preferrenceLvl : 1 / preferrenceLvl;
+                preferrenceLvlArray[preferrenceArrayCounter] = preferrenceLvl;
+                preferrenceArrayCounter++;
+
+            }
+//
+        }
+        comparisonMatrix = initializeMatrix(preferrenceLvlArray, elements.size());
+        comparisonMatrix.setElements(elements);
+        comparisonMatrix.setMatrixName(matrixName);
+        return comparisonMatrix;
+    }
+
+    public static ComparisonMatrix initializeMatrix(double[] p, int n) {
+
+        double a[][] = new double[n][n];
+        int k = 0;
+        for (int i = 0; i < n; i++) {
+//            k = 0;
+
+            for (int j = 0; j < n; j++) {
+                if (i == j)
+                    a[i][j] = 1;
+                else if (i < j) {
+
+                    a[i][j] = p[k];
+                    k++;
+                } else if (i > j)
+                    a[i][j] = 1 / a[j][i];
+            }
+        }
+
+
+        return new ComparisonMatrix(a);
     }
 
 
