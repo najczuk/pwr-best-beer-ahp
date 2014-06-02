@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.RatingBar;
 import android.widget.Switch;
@@ -14,6 +15,7 @@ import pl.pwr.swd.beerapp.domain.Element;
 import pl.pwr.swd.beerapp.services.CriteriaElementMockService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -24,6 +26,9 @@ import java.util.Scanner;
 public class CompareBeersActivity extends Activity {
 
     ArrayList<Element> beers, criteria;
+    public final static String LEFT_ELEMENT = "LEFT_ELEMENT";
+    public final static String RIGHT_ELEMENT = "RIGHT_ELEMENT";
+    public final static double[] RATING_VALUES = {1,3,5,7,9};
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,63 @@ public class CompareBeersActivity extends Activity {
 
     }
 
+    public void onSubmit(View view) {
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.beerComparisonGridLayout);
+        int gridChildCount = gridLayout.getChildCount();
+
+
+        ArrayList<ComparisonMatrix> comparisonMatrixes = new ArrayList<ComparisonMatrix>();
+        int criteriaCount = criteria.size();
+        int numberOfComparisons = (beers.size() * beers.size() - beers.size()) / 2;
+
+        ComparisonMatrix comparisonMatrix;
+
+        Switch tmpSwitch;
+        RatingBar tmpRatingBar;
+//        Log.d("klasy", "i+1: " + gridLayout.getChildAt(currentChildIndex + 1).getClass().toString() + " i+3: " + gridLayout.getChildAt(currentChildIndex + 3).getClass().toString());
+
+        int currentChildIndex = 0;
+        for (int i = 0; i < criteriaCount; i++) {
+            currentChildIndex++;
+            int currentLimit = currentChildIndex + 4 * numberOfComparisons;
+
+            double[] preferrenceLvlArray = new double[numberOfComparisons];
+            int preferenceArrayCounter=0;
+            double preferrenceLvl=1;
+            String switchValue = LEFT_ELEMENT;
+            double ratingValue;
+
+            for (; currentChildIndex < currentLimit; currentChildIndex += 4) {
+                if (gridLayout.getChildAt(currentChildIndex + 1) instanceof Switch
+                        && gridLayout.getChildAt(currentChildIndex + 3) instanceof RatingBar) {
+                    tmpSwitch = (Switch) gridLayout.getChildAt(currentChildIndex + 1);
+                    tmpRatingBar = (RatingBar) gridLayout.getChildAt(currentChildIndex + 3);
+
+                    switchValue = tmpSwitch.getText().toString();
+                    ratingValue = RATING_VALUES[Math.round(tmpRatingBar.getRating())-1];
+                    preferrenceLvl = switchValue.equals(LEFT_ELEMENT)?ratingValue:(1/ratingValue);
+
+                    Log.d("klasy", "preference lvl:"+ratingValue);
+
+                    preferrenceLvlArray[preferenceArrayCounter] = preferrenceLvl;
+                    preferenceArrayCounter++;
+                }
+                comparisonMatrix = initializeMatrix(preferrenceLvlArray,beers.size());
+                comparisonMatrixes.add(comparisonMatrix);
+
+
+//                Log.d("klasy", "i+1: (" + (currentChildIndex + 1) + ") " + gridLayout.getChildAt(currentChildIndex + 1).getClass().toString()
+//                        + " i+3: " + (currentChildIndex + 3) + ") " + gridLayout.getChildAt(currentChildIndex + 3).getClass().toString());
+
+            }
+
+            Log.d("klasy","preference array: " + Arrays.toString(preferrenceLvlArray));
+
+
+        }
+    }
+
+
     private void appendComparisonView(String firstElementName, String secondElementName) {
         GridLayout gridLayout = (GridLayout) findViewById(R.id.beerComparisonGridLayout);
 
@@ -52,6 +114,7 @@ public class CompareBeersActivity extends Activity {
         secondElement.setText(secondElementName);
 
         Switch aSwitch = new Switch(this);
+        aSwitch.setTextOn("");
 
         RatingBar ratingBar = new RatingBar(this);
         ratingBar.setNumStars(5);
@@ -76,7 +139,7 @@ public class CompareBeersActivity extends Activity {
         ratingParams.rightMargin = 5;
         ratingParams.topMargin = 5;
         ratingParams.setGravity(Gravity.CENTER);
-        ratingParams.columnSpec = GridLayout.spec(0,4);
+        ratingParams.columnSpec = GridLayout.spec(0, 4);
         ratingBar.setLayoutParams(ratingParams);
     }
 
@@ -87,11 +150,11 @@ public class CompareBeersActivity extends Activity {
         switchParams.rightMargin = 5;
         switchParams.topMargin = 5;
         switchParams.setGravity(Gravity.CENTER);
-        switchParams.columnSpec = GridLayout.spec(1,2);
+        switchParams.columnSpec = GridLayout.spec(1, 2);
         aSwitch.setLayoutParams(switchParams);
     }
 
-    private void appendComparisonHeader(String comparisonName){
+    private void appendComparisonHeader(String comparisonName) {
         TextView headerElement = new TextView(this);
         headerElement.setText(comparisonName);
         setHeaderParams(headerElement);
@@ -110,7 +173,7 @@ public class CompareBeersActivity extends Activity {
         ratingParams.rightMargin = 5;
         ratingParams.topMargin = 5;
         ratingParams.setGravity(Gravity.CENTER);
-        ratingParams.columnSpec = GridLayout.spec(0,4);
+        ratingParams.columnSpec = GridLayout.spec(0, 4);
         headerElement.setLayoutParams(ratingParams);
     }
 
@@ -125,10 +188,10 @@ public class CompareBeersActivity extends Activity {
         return beers;
     }
 
-    private void createComparisonViews(){
+    private void createComparisonViews() {
         for (int firstElement = 0; firstElement < beers.size(); firstElement++) {
-            for (int secondElement = firstElement+1; secondElement < beers.size(); secondElement++) {
-                appendComparisonView(beers.get(firstElement).getName(),beers.get(secondElement).getName());
+            for (int secondElement = firstElement + 1; secondElement < beers.size(); secondElement++) {
+                appendComparisonView(beers.get(firstElement).getName(), beers.get(secondElement).getName());
             }
         }
 
@@ -149,7 +212,7 @@ public class CompareBeersActivity extends Activity {
                 prompt = "Co bardziej preferujesz " + elements.get(i) + "( 0 ) czy " + elements.get(j) + "( 1 )?";
                 System.out.println("---" + matrixName.toUpperCase() + "---");
                 System.out.println(prompt);
-                preferredElement = Integer.parseInt(scanner.next())==0?i:j;
+                preferredElement = Integer.parseInt(scanner.next()) == 0 ? i : j;
                 System.out.println("Jak bardzo?");
                 System.out.println("Tak samo(1)/Nieznacznie(3)/Silnie(5)/Bardzo silnie(7)/Wyjątkowo(9)");
                 preferrenceLvl = scanner.nextInt();
@@ -166,7 +229,7 @@ public class CompareBeersActivity extends Activity {
         return comparisonMatrix;
     }
 
-    public static ComparisonMatrix initializeMatrix(double[] p, int n) {
+    private static ComparisonMatrix initializeMatrix(double[] p, int n) {
 
         double a[][] = new double[n][n];
         int k = 0;
