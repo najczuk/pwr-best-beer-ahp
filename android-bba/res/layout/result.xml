@@ -1,8 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@android:color/white">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/results"
+            android:id="@+id/resultText"
+            android:layout_gravity="center"
+            android:autoText="false"
+            android:textColor="@android:color/primary_text_light"/>
+
+    <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:columnCount="2"
+            android:id="@+id/resultsGridLayout"
+            android:columnOrderPreserved="true">
+
+    </GridLayout>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nextButtonText"
+            android:id="@+id/nextButton"
+            android:onClick="submitBeers"
+            android:layout_gravity="center"
+            />
 
 </LinearLayout>
+

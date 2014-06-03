@@ -1,6 +1,7 @@
 package pl.pwr.swd.beerapp.android_app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import pl.pwr.swd.beerapp.domain.ComparisonMatrix;
 import pl.pwr.swd.beerapp.domain.Element;
+import pl.pwr.swd.beerapp.engine.AHPComputer;
 import pl.pwr.swd.beerapp.services.CriteriaElementMockService;
 
 import java.util.ArrayList;
@@ -23,8 +25,12 @@ import java.util.Arrays;
  * Time: 10:48 PM
  */
 public class CompareBeersActivity extends Activity {
+    public final static String RANK = "pl.pwr.swd.beerapp.android_app.RANK";
+    public final static String COHERENCE = "pl.pwr.swd.beerapp.android_app.COHERENCE";
+
 
     ArrayList<Element> beers, criteria;
+    ArrayList<String> beerNames;
     public final static String LEFT_ELEMENT = "LEFT_ELEMENT";
     public final static String RIGHT_ELEMENT = "RIGHT_ELEMENT";
     public final static double[] RATING_VALUES = {1, 3, 5, 7, 9};
@@ -35,7 +41,7 @@ public class CompareBeersActivity extends Activity {
         setContentView(R.layout.beer_comparison);
 
         Bundle bundle = getIntent().getExtras();
-        ArrayList<String> beerNames = bundle.getStringArrayList(MainActivity.CHECKED_BEERS);
+        this.beerNames = bundle.getStringArrayList(MainActivity.CHECKED_BEERS);
         beers = getElementsFromStringArray(beerNames);
         criteria = CriteriaElementMockService.getCriteria();
 
@@ -51,14 +57,39 @@ public class CompareBeersActivity extends Activity {
     public void onSubmit(View view) {
         GridLayout gridLayout = (GridLayout) findViewById(R.id.beerComparisonGridLayout);
         ArrayList<ComparisonMatrix> comparisonMatrixes = new ArrayList<ComparisonMatrix>();
-        int currentChildIndex=0;
-        getBeerComparisonMatrix(gridLayout, comparisonMatrixes,currentChildIndex);
+        int currentChildIndex = 0;
+        currentChildIndex = getBeerComparisonMatrix(gridLayout, comparisonMatrixes, currentChildIndex);
+        ComparisonMatrix criteriaComparisonMatrix =  getCriteriaComparisonMatrix(gridLayout, currentChildIndex);
+
+//        for (int i = 0; i < comparisonMatrixes.size(); i++) {
+//            Log.d("matixes", comparisonMatrixes.get(i).toString() + "|" + criteria.get(i));
+//        }
+//        Log.d("matixes", criteriaComparisonMatrix.toString());
+
+        AHPComputer ahpComputer = new AHPComputer(criteriaComparisonMatrix
+                ,comparisonMatrixes, beers, criteria);
+        double[] rank = ahpComputer.computeRank().getRowPackedCopy();
+        ArrayList<String> rankStrings = new ArrayList<String>();
+        for (int i = 0; i < rank.length; i++) {
+            rankStrings.add(String.valueOf(rank[i]));
+        }
+
+        for (int i = 0; i < beers.size(); i++) {
+            System.out.println(beers.get(i) + ": " + rank[i]);
+            Log.d("matixes", beers.get(i) + ": " + rank[i]);
+        }
+
+        Intent resultBeers = new Intent(this, ResultsActivity.class);
+        resultBeers.putStringArrayListExtra(MainActivity.CHECKED_BEERS, beerNames);
+        resultBeers.putStringArrayListExtra(RANK, rankStrings);
+//        resultBeers.putExtra(COHERENCE, AHPComputer.checkCoherence());
+        startActivity(resultBeers);
 
 
     }
 
-    private void getBeerComparisonMatrix(GridLayout gridLayout, ArrayList<ComparisonMatrix> comparisonMatrixes
-            ,int currentChildIndex) {
+    private int getBeerComparisonMatrix(GridLayout gridLayout, ArrayList<ComparisonMatrix> comparisonMatrixes
+            , int currentChildIndex) {
         int criteriaCount = criteria.size();
         int numberOfComparisons = (beers.size() * beers.size() - beers.size()) / 2;
 
@@ -102,19 +133,43 @@ public class CompareBeersActivity extends Activity {
 
 
         }
+        return currentChildIndex;
     }
 
-    private void getCriteriaComparisonMatrix(GridLayout gridLayout, ComparisonMatrix criteriaComparisonMatrix,
-                                             int currentChildIndex){
+    private ComparisonMatrix getCriteriaComparisonMatrix(GridLayout gridLayout, int currentChildIndex) {
         currentChildIndex++;
-        int numberOfComparisons = (beers.size() * beers.size() - beers.size()) / 2;
+        int numberOfComparisons = (criteria.size() * criteria.size() - criteria.size()) / 2;
         int currentLimit = currentChildIndex + 4 * numberOfComparisons;
         double[] preferrenceLvlArray = new double[numberOfComparisons];
         int preferenceArrayCounter = 0;
         double preferrenceLvl = 1;
+        Switch tmpSwitch;
+        RatingBar tmpRatingBar;
         String switchValue = LEFT_ELEMENT;
         double ratingValue;
+        Log.d("kryteria", "number of children: " + gridLayout.getChildCount());
+        for (; currentChildIndex < currentLimit; currentChildIndex += 4) {
+            Log.d("kryteria",currentChildIndex+ ")_ i+1: " + gridLayout.getChildAt(currentChildIndex + 1).getClass().toString()
+                    + " i+3: " + gridLayout.getChildAt(currentChildIndex + 3).getClass().toString());
 
+            if (gridLayout.getChildAt(currentChildIndex + 1) instanceof Switch
+                    && gridLayout.getChildAt(currentChildIndex + 3) instanceof RatingBar) {
+                tmpSwitch = (Switch) gridLayout.getChildAt(currentChildIndex + 1);
+                tmpRatingBar = (RatingBar) gridLayout.getChildAt(currentChildIndex + 3);
+
+                switchValue = tmpSwitch.getText().toString();
+                ratingValue = RATING_VALUES[Math.round(tmpRatingBar.getRating()) - 1];
+                preferrenceLvl = switchValue.equals(LEFT_ELEMENT) ? ratingValue : (1 / ratingValue);
+
+                Log.d("kryteria", "preference lvl:" + ratingValue);
+
+                preferrenceLvlArray[preferenceArrayCounter] = preferrenceLvl;
+                preferenceArrayCounter++;
+            }
+
+        }
+        ComparisonMatrix criteriaComparisonMatrix = initializeMatrix(preferrenceLvlArray, criteria.size());
+        return criteriaComparisonMatrix;
 
     }
 
@@ -211,7 +266,7 @@ public class CompareBeersActivity extends Activity {
         }
     }
 
-    private void createCriteriaComparisonViews(){
+    private void createCriteriaComparisonViews() {
         for (int firstElement = 0; firstElement < criteria.size(); firstElement++) {
             for (int secondElement = firstElement + 1; secondElement < criteria.size(); secondElement++) {
                 appendComparisonView(criteria.get(firstElement).getName(), criteria.get(secondElement).getName());
@@ -238,6 +293,7 @@ public class CompareBeersActivity extends Activity {
             }
         }
 
+        Log.d("kryteria", Arrays.deepToString(a));
 
         return new ComparisonMatrix(a);
     }

@@ -3,6 +3,7 @@ package pl.pwr.swd.beerapp.domain;
 import Jama.Matrix;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * User: Adrian
@@ -43,5 +44,10 @@ public class ComparisonMatrix extends Matrix {
 
     public void setElements(ArrayList<Element> elements) {
         this.elements = elements;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.deepToString(this.getArray());
     }
 }
